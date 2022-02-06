@@ -160,7 +160,10 @@ export class ModuleGraph {
     let mod = this.urlToModuleMap.get(url)
     if (!mod) {
       mod = new ModuleNode(url)
-      if (meta) mod.meta = meta
+      // A module with the same 'resolveId' might already exist under
+      // a different URL. Make sure we inherit its 'meta'.
+      const existing = this.idToModuleMap.get(resolvedId)
+      mod.meta = { ...existing?.meta, ...meta }
       this.urlToModuleMap.set(url, mod)
       mod.id = resolvedId
       this.idToModuleMap.set(resolvedId, mod)

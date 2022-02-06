@@ -181,6 +181,7 @@ export function importAnalysisPlugin(config: ResolvedConfig): Plugin {
         if (base !== '/' && url.startsWith(base)) {
           url = url.replace(base, '/')
         }
+        const uncleanUrl = url
 
         let importerFile = importer
         if (
@@ -259,7 +260,12 @@ export function importAnalysisPlugin(config: ResolvedConfig): Plugin {
           // its last updated timestamp to force the browser to fetch the most
           // up-to-date version of this module.
           try {
-            const depModule = await moduleGraph.ensureEntryFromUrl(url, ssr)
+            // make sure we feed the original "unclean" URL to  ensureEntryFromUrl
+            // so as to call the very same user plugins as in build mode.
+            const depModule = await moduleGraph.ensureEntryFromUrl(
+              uncleanUrl,
+              ssr
+            )
             if (depModule.lastHMRTimestamp > 0) {
               url = injectQuery(url, `t=${depModule.lastHMRTimestamp}`)
             }
